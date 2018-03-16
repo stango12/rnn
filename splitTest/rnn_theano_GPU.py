@@ -148,18 +148,50 @@ def train_with_sgd(model, x_train, y_train, learning_rate=np.float32(0.01), nepo
 np.random.seed(10)
 model = RNNTheano()
 
-for folder in os.listdir("data/"):
-    for filename in os.listdir("data/" + folder):
-        if filename.endswith(".npz"):
-            print "Training on file " + str(folder)
-            model.load_param("rnn-theano-parameters45k.npz")
-            X, Y = get_data("data/" + folder + "/" + filename)
-            X = X[...,:45000]
-            Y = Y[...,:45000]
-            print X.shape
-            print Y.shape
-            train_with_sgd(model, np.float32(X), np.float32(Y))
+# for folder in os.listdir("data/"):
+#     X_Song = np.zeros(45000)
+#     Y_Song = np.zeros(12)
+#     for filename in os.listdir("data/" + folder):
+#         if filename.endswith(".npz"):
+#             print "Training on file " + str(folder)
+#             model.load_param("rnn-theano-parameters45k.npz")
+#             X, Y = get_data("data/" + folder + "/" + filename)
+#             X = X[...,:45000]
+#             print X.shape
+#             print Y.shape
+#             X_Song.vstack(X_Song, X)
+#             Y_Song.append(Y)
+#     print X_Song.shape
+#     print Y_Song.shape
+#     train_with_sgd(model, np.float32(X_Song), np.float32(Y_Song))
 
+
+X, Y = get_data("data/MAPS_MUS-ty_mai_AkPnBcht/data1.npz")
+X = X[...,:45000]
+X1, Y1 = get_data("data/MAPS_MUS-ty_mai_AkPnBcht/data2.npz")
+X1 = X1[...,:45000]
+X2, Y2 = get_data("data/MAPS_MUS-ty_mai_AkPnBcht/data3.npz")
+X2 = X2[...,:45000]
+
+notes = len(X) + len(X1) + len(X2) + 2
+X_Song = np.zeros(shape=(notes, 45000))
+Y_Song = np.zeros(shape=(notes, 12))
+
+for i in range(len(X)):
+    X_Song[i + 1] = X[i]
+    Y_Song[i + 1] = Y[i]
+
+for i in range(len(X1)):
+    X_Song[len(X) + 1] = X1[i]
+    Y_Song[len(Y) + 1] = Y1[i]
+
+for i in range(len(X2)):
+    X_Song[len(X) + len(X1) + 1] = X2[i]
+    Y_Song[len(Y) + len(Y1) + 1] = Y2[i]
+
+print X_Song.shape
+print Y_Song.shape
+train_with_sgd(model, np.float32(X_Song), np.float32(Y_Song))
 # t1 = time.time()
 # model.sgd_step([X[10]], [Y[10]], learning_rate)
 # t2 = time.time()
